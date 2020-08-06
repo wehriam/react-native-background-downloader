@@ -167,6 +167,17 @@ RCT_EXPORT_METHOD(stopTask: (NSString *)identifier) {
     }
 }
 
+RCT_EXPORT_METHOD(canSuspendIfBackground) {
+    NSLog(@"RNBD canSuspendIfBackground");
+    dispatch_sync(dispatch_get_main_queue(), ^(void){
+        if (storedCompletionHandler) {
+            storedCompletionHandler();
+            NSLog(@"RNBD did call backgroundSessionCompletionHandler (canSuspendIfBackground)");
+            storedCompletionHandler = nil;
+        }
+    });
+}
+
 RCT_EXPORT_METHOD(checkForExistingDownloads: (RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
     [self lazyInitSession];
     [urlSession getTasksWithCompletionHandler:^(NSArray<NSURLSessionDataTask *> * _Nonnull dataTasks, NSArray<NSURLSessionUploadTask *> * _Nonnull uploadTasks, NSArray<NSURLSessionDownloadTask *> * _Nonnull downloadTasks) {

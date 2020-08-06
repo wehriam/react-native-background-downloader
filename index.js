@@ -38,6 +38,13 @@ RNBackgroundDownloaderEmitter.addListener('downloadBegin', event => {
     }
 });
 
+export function canSuspendIfBackground() {
+    if(typeof RNBackgroundDownloader.canSuspendIfBackground === 'function') {
+        console.log("RNBackgroundDownloader.canSuspendIfBackground()");
+        RNBackgroundDownloader.canSuspendIfBackground();
+    }
+}
+
 export function setHeaders(h = {}) {
     if (typeof h !== 'object') {
         throw new Error('[RNBackgroundDownloader] headers must be an object');
