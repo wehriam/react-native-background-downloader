@@ -40,7 +40,6 @@ RNBackgroundDownloaderEmitter.addListener('downloadBegin', event => {
 
 export function canSuspendIfBackground() {
     if(typeof RNBackgroundDownloader.canSuspendIfBackground === 'function') {
-        console.log("RNBackgroundDownloader.canSuspendIfBackground()");
         RNBackgroundDownloader.canSuspendIfBackground();
     }
 }

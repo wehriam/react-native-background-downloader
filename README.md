@@ -206,6 +206,20 @@ Sets headers to use in all future downloads.
 
 **headers** - Object
 
+### `canSuspendIfBackground()`
+
+If you are not using iOS background events, you can ignore this method.
+
+Notify the OS that your app can sleep again. Call this method when your app has done all its work or is waiting for background uploads to complete. Upon calling the method, you app is suspended if it's running in the background. Native code and JS will pause execution. Apple recommends you keep background execution time at less than 5 to 10 sec.
+
+Here are a few common situations and how to handle them:
+
+ - Downloads are finished (completed, error or cancelled) and your app does not need to do any more work. You should call `canSuspendIfBackground` after receiving the events.
+ 
+ - Downloads are finished (completed, error or cancelled) and your app needs to run some computation or make a network request. You should call `canSuspendIfBackground` after the computation or network call is done.
+ 
+ - Downloads are finished (completed, error or cancelled) and your app needs to download some more. You call `download` a number of times and add your listeners. You should call `canSuspendIfBackground` after the downloads start but not wait for them to finish. You also need to call `canSuspendIfBackground` after you have received the events, even if some uploads are cancelled or fail.
+
 ### DownloadTask
 
 A class representing a download task created by `RNBackgroundDownloader.download`

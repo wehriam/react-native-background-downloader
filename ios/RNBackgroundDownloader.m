@@ -90,13 +90,6 @@ RCT_EXPORT_MODULE();
             [idToTaskMap removeObjectForKey:taskConfig.id];
             [idToPercentMap removeObjectForKey:taskConfig.id];
         }
-        // if (taskToConfigMap.count == 0) {
-        //     NSLog(@"RNBD did invalidate session");
-        //     [urlSession invalidateAndCancel];
-        //     urlSession = nil;
-        // } else {
-        //     NSLog(@"RNBD did not invalidate session");
-        // }
     }
 }
 
@@ -171,11 +164,9 @@ RCT_EXPORT_METHOD(stopTask: (NSString *)identifier) {
 }
 
 RCT_EXPORT_METHOD(canSuspendIfBackground) {
-    NSLog(@"RNBD canSuspendIfBackground");
     dispatch_sync(dispatch_get_main_queue(), ^(void){
         if (storedCompletionHandler) {
             storedCompletionHandler();
-            NSLog(@"RNBD did call backgroundSessionCompletionHandler (canSuspendIfBackground)");
             storedCompletionHandler = nil;
         }
     });
@@ -214,13 +205,16 @@ RCT_EXPORT_METHOD(checkForExistingDownloads: (RCTPromiseResolveBlock)resolve rej
                     [task cancel];
                 }
             }
-            if([idsFound count] == 0) {
-                NSLog(@"RNBD did not find existing tasks, invalidating");
+            [urlSession getTasksWithCompletionHandler:^(NSArray *dataTasks, NSArray *uploadTasks, NSArray *downloadTasks) {
+                for (NSUInteger i = 0, count = [downloadTasks count]; i < count; i++) {
+                    NSURLSessionTask * newTask = downloadTasks[i];
+                    if(newTask.state != NSURLSessionTaskStateCompleted) {
+                        return;
+                    }
+                }
                 [urlSession finishTasksAndInvalidate];
                 urlSession = nil;
-            } else {
-                NSLog(@"RNBD found existing tasks");
-            }
+            }];
             resolve(idsFound);
         }
     }];
@@ -294,22 +288,18 @@ RCT_EXPORT_METHOD(checkForExistingDownloads: (RCTPromiseResolveBlock)resolve rej
         for (NSUInteger i = 0, count = [downloadTasks count]; i < count; i++) {
             NSURLSessionTask * newTask = downloadTasks[i];
             if(newTask.state != NSURLSessionTaskStateCompleted) {
-                NSLog(@"RNBD did not invalidate");
                 return;
             }
         }
-        NSLog(@"RNBD did invalidate");
         [session finishTasksAndInvalidate];
         urlSession = nil;
     }];
 }
 
 - (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session {
-    NSLog(@"RNBD URLSessionDidFinishEventsForBackgroundURLSession");
     if (storedCompletionHandler) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             storedCompletionHandler();
-            NSLog(@"RNBD did call storedCompletionHandler in URLSessionDidFinishEventsForBackgroundURLSession");
             storedCompletionHandler = nil;
         }];
     }
