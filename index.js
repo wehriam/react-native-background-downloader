@@ -117,5 +117,6 @@ export default {
     setHeaders,
     directories,
     Network,
-    Priority
+    Priority,
+    canSuspendIfBackground
 };
